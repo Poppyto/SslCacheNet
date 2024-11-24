@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using static SslCacheNet.Native;
 
 namespace SslCacheNet
@@ -33,14 +26,13 @@ namespace SslCacheNet
             //
             // Get handle to schannel security package.
             //
-
             var ntStatus = Native.RtlAdjustPrivilege(Privilege.SeTcbPrivilege, true, false, out var WasEnabled);
             _trusted = Native.NT_SUCCESS(ntStatus);
 
             if (_trusted)
             {
                 var lsaString = new LSA_STRING();
-                lsaString.Buffer = "SslCacheNet";
+                lsaString.Buffer = Environment.GetCommandLineArgs()[0]; //SslCacheNet
                 lsaString.Length = (ushort)lsaString.Buffer.Length;
                 lsaString.MaximumLength = (ushort)(lsaString.Length + 1);
 
@@ -89,8 +81,9 @@ namespace SslCacheNet
             {
                 Native.LsaDeregisterLogonProcess(_lsaHandle);
                 _lsaHandle = IntPtr.Zero;
-                _packageNumber = 0;
             }
+
+            _packageNumber = 0;
         }
 
         ~LSA()
@@ -159,7 +152,7 @@ namespace SslCacheNet
             }
         }
 
-        public void PurgeCacheEntries(bool includeClient, bool includeServer, bool includeMappedEntries, string pszServerName)
+        public void PurgeCacheEntries(bool includeClient, bool includeServer)
         {
             Connect();
 
@@ -167,64 +160,33 @@ namespace SslCacheNet
 
             try
             {
-                Console.WriteLine("\nPURGE CACHE ENTRIES");
-                Console.WriteLine("Client:{0}", includeClient ? "yes" : "no");
-                Console.WriteLine("Server:{0}", includeServer ? "yes" : "no");
-
                 var cbSize = Marshal.SizeOf<Native.SSL_PURGE_SESSION_CACHE_REQUEST>();
 
-                int cbServerName = (pszServerName?.Length ?? 0);
-
-                if (cbServerName > 0)
-                {
-                    cbServerName += 2;
-                    cbServerName *= sizeof(char);
-                }
-
-                requestAlloc = Marshal.AllocHGlobal(cbSize + cbServerName);
+                requestAlloc = Marshal.AllocHGlobal(cbSize);
 
                 if (requestAlloc == null)
                 {
-                    Console.WriteLine("**** Out of memory");
-                    return;
+                    throw new OutOfMemoryException("**** Out of memory");
                 }
 
                 var sslPurgeSessionCacheRequest = new Native.SSL_PURGE_SESSION_CACHE_REQUEST();
-
-                if (cbServerName > 0)
-                {
-                    var bytes = Encoding.Unicode.GetBytes(pszServerName + "\0\0");
-                    IntPtr dstServerName = requestAlloc + cbSize;
-                    Marshal.Copy(bytes, 0, dstServerName, bytes.Length);
-
-                    //Buffer has to be just after the structure
-                    //struct SSL_PURGE_SESSION_CACHE_REQUEST;ServerNamebuffer
-                    sslPurgeSessionCacheRequest.ServerName.Buffer = dstServerName;
-                    sslPurgeSessionCacheRequest.ServerName.Length = (ushort)(cbServerName - sizeof(char));
-                    sslPurgeSessionCacheRequest.ServerName.MaximumLength = (ushort)cbServerName;
-                }
 
                 sslPurgeSessionCacheRequest.MessageType = SslPurgeSessionCacheMessage;
 
                 if (includeClient)
                 {
-                    //sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_CLIENT_ENTRIES;
-                    sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_CLIENT_ALL_ENTRIES;
+                    sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_CLIENT_ENTRIES | SSL_PURGE_CLIENT_ALL_ENTRIES;
                 }
+
                 if (includeServer)
                 {
-                    //sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_SERVER_ENTRIES;
-                    sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_SERVER_ALL_ENTRIES;
-                }
-                if (includeMappedEntries)
-                {
-                    sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_SERVER_ENTRIES_DISCARD_LOCATORS;
+                    sslPurgeSessionCacheRequest.Flags |= SSL_PURGE_SERVER_ENTRIES | SSL_PURGE_SERVER_ALL_ENTRIES;
                 }
 
-                var sizeofRequest = Marshal.SizeOf(sslPurgeSessionCacheRequest) + cbServerName;
+                var sizeofRequest = Marshal.SizeOf(sslPurgeSessionCacheRequest);
                 IntPtr nullPtr = IntPtr.Zero;
 
-                //copy structure to memory back
+                //copy structure to memory
                 Marshal.StructureToPtr<Native.SSL_PURGE_SESSION_CACHE_REQUEST>(sslPurgeSessionCacheRequest, requestAlloc, false);
 
                 var ntStatus = LsaCallAuthenticationPackage(
@@ -236,9 +198,6 @@ namespace SslCacheNet
                                     out var dwReturnCode,
                                     out var ntSubStatus);
 
-                Console.WriteLine("Status: 0x{0:X8}", ntStatus);
-                Console.WriteLine("SubStatus: 0x{0:X8}", (int)ntSubStatus);
-
                 if (FAILED(ntStatus))
                 {
                     throw new Win32Exception(ntStatus, $"{nameof(Native.LsaCallAuthenticationPackage)} has failed");
@@ -248,11 +207,11 @@ namespace SslCacheNet
                 {
                     if (ntSubStatus == Native.NtSubStatus.STATUS_PRIVILEGE_NOT_HELD)
                     {
-                        throw new Exception("**** The TCB privilege is required to perform this operation.\n");
+                        throw new Win32Exception((unchecked((int)ntSubStatus)), "**** The TCB privilege is required to perform this operation.\n(hint: launch the command with PsExec from Sysinternals with admin rights: psexec.exe -s sslcache.exe -p)");
                     }
                     else
                     {
-                        throw new Exception(string.Format($"**** Error {ntSubStatus} occurred while purging cache entries.\n", ntSubStatus));
+                        throw new Win32Exception((unchecked((int)ntSubStatus)), string.Format($"**** Error {ntSubStatus} occurred while purging cache entries.", ntSubStatus));
                     }
                 }
             }
@@ -264,6 +223,5 @@ namespace SslCacheNet
                 }
             }
         }
-
     }
 }
