@@ -2,8 +2,11 @@
 <package>
   <metadata>
     <id>SslCacheNet</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>SslCacheNet</title>
+	<packageTypes>
+		<packageType name="DotnetCliTool" />
+	</packageTypes>
     <authors>Poppyto</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
