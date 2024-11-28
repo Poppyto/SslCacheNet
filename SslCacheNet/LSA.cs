@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Text;
 using static SslCacheNet.Native;
 
 namespace SslCacheNet
@@ -164,7 +163,7 @@ namespace SslCacheNet
 
                 requestAlloc = Marshal.AllocHGlobal(cbSize);
 
-                if (requestAlloc == null)
+                if (requestAlloc == IntPtr.Zero)
                 {
                     throw new OutOfMemoryException("**** Out of memory");
                 }

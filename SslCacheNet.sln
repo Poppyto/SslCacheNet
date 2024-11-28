@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34607.79
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SslCacheNet", "SslCacheNet.csproj", "{D37C39E2-4583-43D2-87D3-9D898FC14B36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SslCacheNet", "SslCacheNet\SslCacheNet.csproj", "{9CA88735-0236-401B-A0B4-0C8B2842A37A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{A0A46284-F04E-4580-8A39-F8A418EDC837}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +17,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D37C39E2-4583-43D2-87D3-9D898FC14B36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D37C39E2-4583-43D2-87D3-9D898FC14B36}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D37C39E2-4583-43D2-87D3-9D898FC14B36}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D37C39E2-4583-43D2-87D3-9D898FC14B36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CA88735-0236-401B-A0B4-0C8B2842A37A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CA88735-0236-401B-A0B4-0C8B2842A37A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CA88735-0236-401B-A0B4-0C8B2842A37A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CA88735-0236-401B-A0B4-0C8B2842A37A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
