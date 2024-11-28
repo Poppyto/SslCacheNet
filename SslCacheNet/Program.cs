@@ -1,26 +1,13 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using static SslCacheNet.Native;
 
 namespace SslCacheNet
 {
-    public class Program
+    public partial class Program
     {
         static readonly char[] Separators = new char[] { '/', '-' };
         const int DefaultInteractiveTimeout = 2000;
-
-        enum Operations
-        {
-            Unknown,
-            ShowUsage = 1,
-            ListCacheEntries = 2,
-            ListEntriesInteractive = 3,
-            PurgeCacheEntries = 4,
-        }
 
         static void DisplayAppUsage()
         {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Text;
 using static SslCacheNet.Native;
 
 namespace SslCacheNet
@@ -164,7 +163,7 @@ namespace SslCacheNet
 
                 requestAlloc = Marshal.AllocHGlobal(cbSize);
 
-                if (requestAlloc == null)
+                if (requestAlloc == IntPtr.Zero)
                 {
                     throw new OutOfMemoryException("**** Out of memory");
                 }
@@ -207,7 +206,7 @@ namespace SslCacheNet
                 {
                     if (ntSubStatus == Native.NtSubStatus.STATUS_PRIVILEGE_NOT_HELD)
                     {
-                        throw new Win32Exception((unchecked((int)ntSubStatus)), "**** The TCB privilege is required to perform this operation.\n(hint: launch the command with PsExec from Sysinternals with admin rights: psexec.exe -s sslcache.exe -p)");
+                        throw new Win32Exception((unchecked((int)ntSubStatus)), "**** The TCB privilege is required to perform this operation.\n(hint: launch the command with PsExec from Sysinternals with admin rights: psexec.exe -s SslCacheNet.exe -p)");
                     }
                     else
                     {
