@@ -9,7 +9,7 @@
 		<ToolCommandName>SslCacheNet</ToolCommandName>
 		<PackAsTool>true</PackAsTool>
 		<Title>SslCacheNet</Title>
-		<VersionPrefix>2.0.0</VersionPrefix>
+		<VersionPrefix>1.3.0</VersionPrefix>
 		<Authors>Poppyto</Authors>
 		<Description>Utility to list and purge client &amp; server secure connection cache from SCHANNEL (lsass.exe)</Description>
 		<PackageProjectUrl>https://github.com/Poppyto/SslCacheNet</PackageProjectUrl>
